@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALFA.CO — Operations Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   ALFA.CO — UNIFIED ROLE PORTAL
+   All 8 apps embedded. One entry point. Four roles.
+   Design: Dark luxury · Gold accents · SVG icons
+═══════════════════════════════════════════════════ */
+:root{
+  --bg:#07090f;--bg2:#0c1018;--sf:#111621;--sf2:#161d2f;--sf3:#1e2840;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.11);
+  --tx:#eef2ff;--tx2:#7a8db0;--tx3:#3a4a6a;
+  --gold:#f0a500;--gold2:#ffc93c;
+  --c-dir:#e8c84a;--c-am:#5ba3f7;--c-hr:#c084fc;--c-fin:#34d399;
+  --font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+  --rail:68px;--side:242px;--top:56px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--font);color:var(--tx);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+/* ── LOADER ─────────────────────────────────── */
+#ldr{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s}
+#ldr.out{opacity:0;pointer-events:none}
+.ld-ey{font-size:10px;font-weight:700;letter-spacing:.35em;color:var(--gold);text-transform:uppercase}
+.ld-w{font-size:44px;font-weight:800;letter-spacing:-.05em;color:var(--tx)}
+.ld-w em{color:var(--gold);font-style:normal}
+.ld-bar{width:180px;height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.ld-prog{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;animation:lp 1.6s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes lp{0%{width:0}60%{width:70%}100%{width:100%}}
+.ld-sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--tx3)}
+
+/* ── AMBIENT ─────────────────────────────────── */
+.glows{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(110px);opacity:.032}
+
+/* ── APP SHELL ───────────────────────────────── */
+#app{height:100vh;display:flex;flex-direction:column;position:relative;z-index:1}
+
+/* ── TOPBAR ──────────────────────────────────── */
+.tb{height:var(--top);background:rgba(7,9,15,.93);border-bottom:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;align-items:center;padding:0 20px 0 16px;gap:12px;flex-shrink:0;z-index:200}
+.tb-brand{display:flex;align-items:center;gap:10px;cursor:pointer;padding:5px 10px;border-radius:10px;transition:background .15s;text-decoration:none}
+.tb-brand:hover{background:rgba(255,255,255,.04)}
+.tb-alfa{font-size:14px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
+.tb-vr{width:1px;height:15px;background:var(--bd2)}
+.tb-lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--tx3);font-weight:600}
+.tb-sp{flex:1}
+.tb-clk{font-family:var(--mono);font-size:12px;color:var(--tx3);letter-spacing:.04em;user-select:none}
+.tb-rb{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;opacity:.85}
+.tb-btn{display:flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;border:1px solid var(--bd2);background:var(--sf);font-size:11px;font-weight:600;color:var(--tx2);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.tb-btn:hover{color:var(--tx);border-color:var(--gold)}
+.tb-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(240,165,0,.08)}
+
+/* ── BODY ────────────────────────────────────── */
+.bdy{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── ROLE RAIL ───────────────────────────────── */
+.rail{width:var(--rail);background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;flex-shrink:0;z-index:100;overflow:visible}
+.rb{width:46px;height:46px;border-radius:14px;border:1px solid transparent;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .2s;position:relative;color:var(--tx3)}
+.rb:hover{background:rgba(255,255,255,.04);color:var(--tx2);border-color:var(--bd)}
+.rb.on{color:var(--rbc,var(--gold));background:rgba(var(--rbr,240,165,0),.1);border-color:rgba(var(--rbr,240,165,0),.28)}
+.rb-pip{width:4px;height:4px;border-radius:50%;background:var(--rbc,var(--gold));opacity:0;transition:opacity .2s}
+.rb.on .rb-pip{opacity:1}
+.rb-tip{position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--sf3);border:1px solid var(--bd2);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--tx);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:600}
+.rb:hover .rb-tip{opacity:1}
+.rsep{width:28px;height:1px;background:var(--bd);margin:4px 0;flex-shrink:0}
+
+/* ── SIDEBAR ─────────────────────────────────── */
+.sb{width:var(--side);background:rgba(12,16,24,.97);border-right:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .3s cubic-bezier(.4,0,.2,1),opacity .3s}
+.sb.gone{width:0;opacity:0}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.sb-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid currentColor;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.sb-nm{font-size:13px;font-weight:700;color:var(--tx);letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-sub{font-size:10px;color:var(--tx3);margin-top:2px}
+.sb-nav{flex:1;overflow-y:auto;padding:8px}
+.ns{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);padding:10px 8px 4px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--tx2);transition:all .12s;margin-bottom:1px;white-space:nowrap;position:relative;user-select:none}
+.ni:hover{background:rgba(255,255,255,.04);color:var(--tx)}
+.ni.on{background:var(--sf2);color:var(--tx);font-weight:600}
+.ni.on::before{content:'';position:absolute;left:0;top:7px;bottom:7px;width:2.5px;border-radius:0 2px 2px 0;background:var(--nic,var(--gold))}
+.ni-ic{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ni-bd{margin-left:auto;background:#c0392b;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center;font-family:var(--mono)}
+.sb-ft{padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0}
+.sf-clk{font-family:var(--mono);font-size:18px;font-weight:300;color:var(--tx);letter-spacing:-.5px}
+.sf-dt{font-size:10px;color:var(--tx2);margin-top:2px}
+.sf-conn{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:10px;color:var(--tx3)}
+.cdot{width:5px;height:5px;border-radius:50%;background:var(--c-fin);animation:bl 2s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── CONTENT ─────────────────────────────────── */
+.cnt{flex:1;position:relative;overflow:hidden}
+
+/* ── WELCOME ─────────────────────────────────── */
+#wlc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;overflow-y:auto;gap:48px;transition:opacity .4s,transform .4s}
+#wlc.out{opacity:0;transform:scale(.97);pointer-events:none}
+.wh{text-align:center}
+.wey{font-size:10px;font-weight:700;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;justify-content:center}
+.wey::before,.wey::after{content:'';width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.wey::after{transform:scaleX(-1)}
+.wt{font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-.05em;line-height:1.08;color:var(--tx);margin-bottom:14px}
+.wt em{color:var(--gold);font-style:normal}
+.ws{font-size:13px;color:var(--tx2);max-width:500px;margin:0 auto;line-height:1.7}
+.wkeys{font-size:10px;color:var(--tx3);display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.wk{background:var(--sf);border:1px solid var(--bd2);border-radius:5px;padding:2px 7px;font-family:var(--mono);font-size:10px;color:var(--tx2)}
+
+/* ── ROLE CARDS ──────────────────────────────── */
+.rg{display:grid;grid-template-columns:repeat(auto-fit,minmax(218px,1fr));gap:14px;width:100%;max-width:980px}
+.rc{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:26px 22px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.rc::after{content:'';position:absolute;top:-80px;right:-80px;width:200px;height:200px;border-radius:50%;background:var(--rcc);opacity:.05;transition:opacity .3s,transform .3s}
+.rc:hover{border-color:var(--rcc);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px var(--rcc)}
+.rc:hover::after{opacity:.1;transform:scale(1.15)}
+.rc:active{transform:translateY(-2px)}
+.rc-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rcc);background:rgba(var(--rcr),.1);border:1px solid rgba(var(--rcr),.25);margin-bottom:14px;width:fit-content}
+.rc-ico{width:50px;height:50px;border-radius:15px;background:rgba(var(--rcr),.1);border:1px solid rgba(var(--rcr),.2);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--rcc)}
+.rc-ttl{font-size:17px;font-weight:700;color:var(--tx);margin-bottom:8px;letter-spacing:-.025em}
+.rc-dsc{font-size:12px;color:var(--tx2);line-height:1.65;margin-bottom:18px;flex:1}
+.rc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
+.rctag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;color:var(--rcc);background:rgba(var(--rcr),.08);border:1px solid rgba(var(--rcr),.2)}
+.rc-cta{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--bd);padding-top:14px;font-size:11px;font-weight:700;color:var(--rcc);letter-spacing:.04em;text-transform:uppercase}
+.rcarr{transition:transform .2s}
+.rc:hover .rcarr{transform:translateX(4px)}
+
+/* ── APP COUNT CHIP ──────────────────────────── */
+.rc-apps{display:inline-flex;align-items:center;gap:5px;margin-bottom:10px;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:600;color:var(--rcc);background:rgba(var(--rcr),.08);border:1px solid rgba(var(--rcr),.18);width:fit-content}
+
+/* ── FRAME PANELS ────────────────────────────── */
+.fw{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .3s;display:flex;flex-direction:column}
+.fw.on{opacity:1;pointer-events:all}
+.fw iframe{width:100%;height:100%;border:none;display:block;flex:1}
+
+/* ── TOAST ───────────────────────────────────── */
+#tst{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sf2);border:1px solid var(--bd2);border-radius:12px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--tx);z-index:9998;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:0 10px 40px rgba(0,0,0,.6);pointer-events:none;display:flex;align-items:center;gap:8px}
+#tst.on{transform:translateX(-50%) translateY(0)}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:900px){.sb{display:none}:root{--rail:58px}}
+@media(max-width:600px){.wt{font-size:26px}.rg{grid-template-columns:1fr;max-width:400px}}
+</style>
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="glows" aria-hidden="true">
+  <div class="glow" style="width:700px;height:700px;background:#f0a500;top:-300px;left:-200px"></div>
+  <div class="glow" style="width:600px;height:600px;background:#5ba3f7;top:30%;right:-250px"></div>
+  <div class="glow" style="width:500px;height:500px;background:#c084fc;bottom:-200px;left:25%"></div>
+  <div class="glow" style="width:400px;height:400px;background:#34d399;bottom:-200px;right:8%"></div>
+</div>
+
+<!-- Loader -->
+<div id="ldr">
+  <div class="ld-ey">Operations Portal</div>
+  <div class="ld-w">ALFA<em>.</em>CO</div>
+  <div class="ld-bar"><div class="ld-prog"></div></div>
+  <div class="ld-sub">8 Apps · 4 Roles · 1 Portal</div>
+</div>
+
+<!-- Toast -->
+<div id="tst"><span id="tst-msg">Ready</span></div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="tb">
+    <div class="tb-brand" onclick="goHome()" title="Home · Esc">
+      <span class="tb-alfa">ALFA.CO</span>
+      <span class="tb-vr"></span>
+      <span class="tb-lbl">Portal</span>
+    </div>
+    <div class="tb-sp"></div>
+    <div class="tb-clk" id="tb-clk">00:00:00</div>
+    <div class="tb-rb" id="tb-rb" style="display:none"></div>
+    <button class="tb-btn" onclick="toggleTheme()"><span id="th-ic">🌙</span> Theme</button>
+    <button class="tb-btn on" id="btn-home" onclick="goHome()">⌂ Home</button>
+  </div>
+
+  <!-- BODY -->
+  <div class="bdy">
+
+    <!-- ROLE RAIL -->
+    <div class="rail">
+      <!-- Home -->
+      <button class="rb on" id="rb-home" onclick="goHome()" style="--rbc:var(--gold);--rbr:240,165,0">
+        <div class="rb-tip">Home</div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <div class="rb-pip"></div>
+      </button>
+      <div class="rsep"></div>
+      <!-- Director -->
+      <button class="rb" id="rb-director" onclick="selectRole('director')" style="--rbc:var(--c-dir);--rbr:232,200,74">
+        <div class="rb-tip">Director</div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <div class="rb-pip"></div>
+      </button>
+      <!-- Area Manager -->
+      <button class="rb" id="rb-am" onclick="selectRole('am')" style="--rbc:var(--c-am);--rbr:91,163,247">
+        <div class="rb-tip">Area Manager</div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <div class="rb-pip"></div>
+      </button>
+      <!-- HR -->
+      <button class="rb" id="rb-hr" onclick="selectRole('hr')" style="--rbc:var(--c-hr);--rbr:192,132,252">
+        <div class="rb-tip">HR Manager</div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div class="rb-pip"></div>
+      </button>
+      <!-- Finance -->
+      <button class="rb" id="rb-finance" onclick="selectRole('finance')" style="--rbc:var(--c-fin);--rbr:52,211,153">
+        <div class="rb-tip">Finance</div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <div class="rb-pip"></div>
+      </button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sb gone" id="sidebar">
+      <div class="sb-hd">
+        <div class="sb-pill" id="sb-pill">Portal</div>
+        <div class="sb-nm" id="sb-nm">ALFA.CO</div>
+        <div class="sb-sub" id="sb-sub">Select a role to begin</div>
+      </div>
+      <div class="sb-nav" id="sb-nav"></div>
+      <div class="sb-ft">
+        <div class="sf-clk" id="sf-clk">00:00</div>
+        <div class="sf-dt" id="sf-dt"></div>
+        <div class="sf-conn"><div class="cdot"></div><span>Portal Active</span></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="cnt">
+
+      <!-- ═══ WELCOME ═══ -->
+      <div id="wlc">
+        <div class="wh">
+          <div class="wey">ALFA.CO Operations</div>
+          <h1 class="wt">All your apps.<br><em>One portal.</em></h1>
+          <p class="ws">8 standalone apps — unified under 4 role workspaces.<br>Select your role to access your embedded tools.</p>
+          <div class="wkeys">
+            <span><span class="wk">⌘1</span> Director</span>
+            <span><span class="wk">⌘2</span> Area Mgr</span>
+            <span><span class="wk">⌘3</span> HR</span>
+            <span><span class="wk">⌘4</span> Finance</span>
+            <span><span class="wk">Esc</span> Home</span>
+          </div>
+        </div>
+
+        <div class="rg">
+
+          <!-- Director -->
+          <div class="rc" onclick="selectRole('director')" style="--rcc:var(--c-dir);--rcr:232,200,74">
+            <div class="rc-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Executive</div>
+            <div class="rc-apps"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 3 apps</div>
+            <div class="rc-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/><polyline points="3,20 21,20"/></svg></div>
+            <div class="rc-ttl">Director</div>
+            <div class="rc-dsc">Executive command — revenue, brands, headcount, food cost, access control, and the full recipe library.</div>
+            <div class="rc-tags"><span class="rctag">Ops Hub</span><span class="rctag">Recipe Builder</span><span class="rctag">Checklists</span></div>
+            <div class="rc-cta"><span>Enter Director View</span><svg class="rcarr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+          </div>
+
+          <!-- Area Manager -->
+          <div class="rc" onclick="selectRole('am')" style="--rcc:var(--c-am);--rcr:91,163,247">
+            <div class="rc-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10z"/></svg> Operations</div>
+            <div class="rc-apps"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 6 apps</div>
+            <div class="rc-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-4h16l1 4"/><path d="M3 9h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9z"/><path d="M9 21V9h6v12"/></svg></div>
+            <div class="rc-ttl">Area Manager</div>
+            <div class="rc-dsc">Full branch operations — inventory, staff, checklists, schedules, server drops, music player, and staff portal.</div>
+            <div class="rc-tags"><span class="rctag">Ops Hub</span><span class="rctag">Checklists</span><span class="rctag">Staff Portal</span><span class="rctag">Server Drop</span><span class="rctag">Music</span></div>
+            <div class="rc-cta"><span>Enter AM View</span><svg class="rcarr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+          </div>
+
+          <!-- HR -->
+          <div class="rc" onclick="selectRole('hr')" style="--rcc:var(--c-hr);--rcr:192,132,252">
+            <div class="rc-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> People</div>
+            <div class="rc-apps"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 4 apps</div>
+            <div class="rc-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="rc-ttl">HR Manager</div>
+            <div class="rc-dsc">Full workforce management — employees, attendance, leave requests, health cards, payroll, and staff portals.</div>
+            <div class="rc-tags"><span class="rctag">Ops Hub (HR)</span><span class="rctag">Leave</span><span class="rctag">Staff Portal</span><span class="rctag">Staff</span></div>
+            <div class="rc-cta"><span>Enter HR View</span><svg class="rcarr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+          </div>
+
+          <!-- Finance -->
+          <div class="rc" onclick="selectRole('finance')" style="--rcc:var(--c-fin);--rcr:52,211,153">
+            <div class="rc-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Finance</div>
+            <div class="rc-apps"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 3 apps</div>
+            <div class="rc-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div class="rc-ttl">Finance Director</div>
+            <div class="rc-dsc">Financial command center — revenue, P&L, DSR summaries, expense approvals, petty cash, and server drop reconciliation.</div>
+            <div class="rc-tags"><span class="rctag">Ops Hub (Finance)</span><span class="rctag">Server Drop</span><span class="rctag">Leave</span></div>
+            <div class="rc-cta"><span>Enter Finance View</span><svg class="rcarr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+          </div>
+
+        </div>
+      </div><!-- /wlc -->
+
+      <!-- ═══ IFRAME PANELS — one per app ═══ -->
+      <!-- Each role's nav switches between its assigned app frames -->
+      <div class="fw" id="fw-index">       <iframe id="fr-index"        title="Ops Hub"></iframe></div>
+      <div class="fw" id="fw-checklists">  <iframe id="fr-checklists"   title="Checklists"></iframe></div>
+      <div class="fw" id="fw-leave">       <iframe id="fr-leave"        title="Leave"></iframe></div>
+      <div class="fw" id="fw-staff-portal"><iframe id="fr-staff-portal" title="Staff Portal"></iframe></div>
+      <div class="fw" id="fw-server-drop"> <iframe id="fr-server-drop"  title="Server Drop"></iframe></div>
+      <div class="fw" id="fw-music-player"><iframe id="fr-music-player" title="Music Player"></iframe></div>
+      <div class="fw" id="fw-staff">       <iframe id="fr-staff"        title="Staff"></iframe></div>
+      <div class="fw" id="fw-recipe">      <iframe id="fr-recipe"       title="Recipe Builder"></iframe></div>
+
+    </div><!-- /cnt -->
+  </div><!-- /bdy -->
+</div><!-- /app -->
+
+<script>
+/* ════════════════════════════════════════════════════
+   ALFA.CO PORTAL — All 8 apps, 4 roles
+   Each nav item maps to a specific HTML file.
+   Iframes are lazy-loaded on first access & kept alive.
+════════════════════════════════════════════════════ */
+
+var P = { active: null, activeApp: null, loaded: {}, theme: localStorage.getItem('alfa_portal_theme') || 'dark' };
+
+/* ── APP REGISTRY ────────────────────────────────────
+   Each entry: id → HTML filename
+   The iframe frame id = "fr-" + id
+   The panel id       = "fw-" + id
+─────────────────────────────────────────────────── */
+var APPS = {
+  'index':        'index.html',
+  'checklists':   'checklists.html',
+  'leave':        'leave.html',
+  'staff-portal': 'staff-portal.html',
+  'server-drop':  'server-drop.html',
+  'music-player': 'music-player.html',
+  'staff':        'staff.html',
+  'recipe':       'recipe-builder.html'
+};
+
+/* ── ROLE DEFINITIONS ────────────────────────────────
+   Each nav item has:
+     id     → unique id for sidebar active state
+     label  → display name
+     icon   → emoji icon
+     app    → key from APPS (which file to show)
+     page   → optional: navTo() page inside index.html
+     badge  → optional: badge count
+─────────────────────────────────────────────────── */
+var ROLES = {
+
+  director: {
+    label: 'Director', sub: 'Executive Overview',
+    color: '#e8c84a', defaultApp: 'index',
+    nav: [
+      { sec: 'EXECUTIVE', items: [
+        { id:'dir-exec',    icon:'📊', label:'Executive Dashboard', app:'index',       page:'exec-dash' },
+        { id:'dir-brands',  icon:'🏆', label:'Brand Performance',   app:'index',       page:'brand-perf' },
+        { id:'dir-revenue', icon:'📈', label:'Revenue Analytics',   app:'index',       page:'rev-analytics' },
+        { id:'dir-head',    icon:'👥', label:'Headcount',           app:'index',       page:'headcount' },
+        { id:'dir-food',    icon:'🍽️', label:'Food Cost',           app:'index',       page:'food-cost' },
+        { id:'dir-alerts',  icon:'⚠️', label:'Alerts Center',       app:'index',       page:'alerts-center', badge:3 }
+      ]},
+      { sec: 'TOOLS', items: [
+        { id:'dir-recipe',  icon:'🍳', label:'Recipe Builder',      app:'recipe' },
+        { id:'dir-checks',  icon:'✅', label:'Checklists',          app:'checklists' }
+      ]},
+      { sec: 'ADMIN', items: [
+        { id:'dir-brands2', icon:'🏢', label:'Brand Management',    app:'index',       page:'brand-mgmt' },
+        { id:'dir-access',  icon:'🔐', label:'Access Control',      app:'index',       page:'access-ctrl' },
+        { id:'dir-audit',   icon:'📋', label:'Audit Log',           app:'index',       page:'audit-log' }
+      ]}
+    ]
+  },
+
+  am: {
+    label: 'Area Manager', sub: 'Branch Operations',
+    color: '#5ba3f7', defaultApp: 'index',
+    nav: [
+      { sec: 'REGION', items: [
+        { id:'am-rdash',    icon:'📊', label:'Region Dashboard',    app:'index',       page:'region-dash' },
+        { id:'am-branches', icon:'🏪', label:'My Branches',         app:'index',       page:'region-branches' },
+        { id:'am-alerts',   icon:'⚠️', label:'Alerts',              app:'index',       page:'alerts-center', badge:2 }
+      ]},
+      { sec: 'BRANCH OPS', items: [
+        { id:'am-bdash',    icon:'📊', label:'Branch Dashboard',    app:'index',       page:'branch-dash' },
+        { id:'am-inv',      icon:'📦', label:'Inventory',           app:'index',       page:'inv-items' },
+        { id:'am-moves',    icon:'🔄', label:'Receive / Issue',     app:'index',       page:'inv-moves' },
+        { id:'am-orders',   icon:'🛒', label:'Purchase Orders',     app:'index',       page:'inv-orders' },
+        { id:'am-wastage',  icon:'🗑️', label:'Wastage Log',         app:'index',       page:'wastage' },
+        { id:'am-sales',    icon:'💰', label:'Sales',               app:'index',       page:'sales' },
+        { id:'am-pc',       icon:'🧾', label:'Petty Cash',          app:'index',       page:'petty-cash' },
+        { id:'am-dsr',      icon:'📑', label:'DSR',                 app:'index',       page:'dsr' }
+      ]},
+      { sec: 'PEOPLE', items: [
+        { id:'am-staff',    icon:'👥', label:'Staff',               app:'index',       page:'staff' },
+        { id:'am-sched',    icon:'🗓️', label:'Schedule',            app:'index',       page:'schedule' },
+        { id:'am-ts',       icon:'⏱️', label:'Timesheet',           app:'index',       page:'timesheet' },
+        { id:'am-health',   icon:'💳', label:'Health Cards',        app:'index',       page:'health-cards' }
+      ]},
+      { sec: 'STANDALONE APPS', items: [
+        { id:'am-checks',   icon:'✅', label:'Checklists App',      app:'checklists' },
+        { id:'am-sport',    icon:'👤', label:'Staff Portal',        app:'staff-portal' },
+        { id:'am-staff2',   icon:'🏷️', label:'Staff Ops',           app:'staff' },
+        { id:'am-drop',     icon:'💵', label:'Server Drop',         app:'server-drop' },
+        { id:'am-music',    icon:'🎵', label:'Music Player',        app:'music-player' }
+      ]}
+    ]
+  },
+
+  hr: {
+    label: 'HR Manager', sub: 'Workforce & People',
+    color: '#c084fc', defaultApp: 'index',
+    nav: [
+      { sec: 'HR OVERVIEW', items: [
+        { id:'hr-dash',     icon:'📊', label:'HR Dashboard',        app:'index',       page:'hrf-hr-dash' },
+        { id:'hr-approv',   icon:'✅', label:'Leave Approvals',     app:'index',       page:'hrf-approvals', badge:4 }
+      ]},
+      { sec: 'WORKFORCE', items: [
+        { id:'hr-emps',     icon:'👥', label:'All Employees',       app:'index',       page:'hrf-employees' },
+        { id:'hr-att',      icon:'⏱️', label:'Attendance',          app:'index',       page:'hrf-attendance' },
+        { id:'hr-leave',    icon:'🏖️', label:'Leave Management',   app:'index',       page:'hrf-leave' },
+        { id:'hr-health',   icon:'💳', label:'Health Cards',        app:'index',       page:'hrf-health' }
+      ]},
+      { sec: 'PAYROLL', items: [
+        { id:'hr-pay',      icon:'💸', label:'Payroll Overview',    app:'index',       page:'hrf-payroll' },
+        { id:'hr-pc',       icon:'🧾', label:'Petty Cash',          app:'index',       page:'hrf-petty-cash' }
+      ]},
+      { sec: 'STANDALONE APPS', items: [
+        { id:'hr-leavef',   icon:'📝', label:'Leave Form',          app:'leave' },
+        { id:'hr-sport',    icon:'👤', label:'Staff Portal',        app:'staff-portal' },
+        { id:'hr-staff',    icon:'🏷️', label:'Staff Ops',           app:'staff' }
+      ]},
+      { sec: 'REPORTS', items: [
+        { id:'hr-report',   icon:'📋', label:'HR Reports',          app:'index',       page:'hrf-hr-report' }
+      ]}
+    ]
+  },
+
+  finance: {
+    label: 'Finance Director', sub: 'Financial Operations',
+    color: '#34d399', defaultApp: 'index',
+    nav: [
+      { sec: 'FINANCE HQ', items: [
+        { id:'fin-dash',    icon:'📊', label:'Finance Dashboard',   app:'index',       page:'hrf-fin-dash' },
+        { id:'fin-approv',  icon:'✅', label:'Expense Approvals',   app:'index',       page:'hrf-approvals', badge:2 }
+      ]},
+      { sec: 'REVENUE & COSTS', items: [
+        { id:'fin-rev',     icon:'💰', label:'Revenue',             app:'index',       page:'hrf-revenue' },
+        { id:'fin-pnl',     icon:'📈', label:'P&L Statement',       app:'index',       page:'hrf-pnl' },
+        { id:'fin-fc',      icon:'🍽️', label:'Food Cost',           app:'index',       page:'hrf-food-cost' },
+        { id:'fin-exp',     icon:'🧾', label:'Expenses',            app:'index',       page:'hrf-expenses' }
+      ]},
+      { sec: 'OPERATIONS', items: [
+        { id:'fin-po',      icon:'🛒', label:'Purchase Orders',     app:'index',       page:'hrf-pos' },
+        { id:'fin-inv',     icon:'📄', label:'Supplier Invoices',   app:'index',       page:'hrf-invoices' },
+        { id:'fin-pc',      icon:'💵', label:'Petty Cash',          app:'index',       page:'hrf-petty-cash' },
+        { id:'fin-dsr',     icon:'📑', label:'DSR Summary',         app:'index',       page:'hrf-dsr' }
+      ]},
+      { sec: 'STANDALONE APPS', items: [
+        { id:'fin-drop',    icon:'💵', label:'Server Drop Entry',   app:'server-drop' },
+        { id:'fin-leave',   icon:'📝', label:'Leave Tracker',       app:'leave' }
+      ]},
+      { sec: 'REPORTS', items: [
+        { id:'fin-report',  icon:'📋', label:'Financial Reports',   app:'index',       page:'hrf-fin-report' }
+      ]}
+    ]
+  }
+};
+
+/* ── Active nav item per role ── */
+var ACT = {
+  director: 'dir-exec',
+  am:       'am-rdash',
+  hr:       'hr-dash',
+  finance:  'fin-dash'
+};
+
+/* ── CLOCK ── */
+var DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function pad(n){return n<10?'0'+n:''+n}
+function tick(){
+  var d=new Date();
+  g('tb-clk').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  g('sf-clk').textContent=pad(d.getHours())+':'+pad(d.getMinutes());
+  g('sf-dt').textContent=DN[d.getDay()]+' · '+MN[d.getMonth()]+' '+d.getDate();
+}
+setInterval(tick,1000); tick();
+
+/* ── SELECT ROLE ── */
+function selectRole(rid){
+  var role=ROLES[rid]; if(!role) return;
+  P.active=rid;
+  g('wlc').classList.add('out');
+  g('btn-home').classList.remove('on');
+  qa('.rb').forEach(function(b){b.classList.remove('on')});
+  g('rb-'+rid).classList.add('on');
+  buildSidebar(role,rid);
+  var rb=g('tb-rb');
+  rb.style.display='flex'; rb.style.color=role.color; rb.style.borderColor=role.color+'55';
+  rb.textContent=role.label;
+  // show the default app for this role
+  var activeId=ACT[rid];
+  var activeItem=findNavItem(role,activeId);
+  if(activeItem) showApp(activeItem.app,activeId,activeItem.page);
+  else showApp(role.defaultApp,activeId,null);
+}
+
+/* ── FIND NAV ITEM ── */
+function findNavItem(role,itemId){
+  for(var i=0;i<role.nav.length;i++){
+    for(var j=0;j<role.nav[i].items.length;j++){
+      if(role.nav[i].items[j].id===itemId) return role.nav[i].items[j];
+    }
+  }
+  return null;
+}
+
+/* ── SHOW APP ── */
+function showApp(appId,navId,page){
+  // hide all panels
+  qa('.fw').forEach(function(f){f.classList.remove('on')});
+  var panel=g('fw-'+appId);
+  if(!panel) return;
+  panel.classList.add('on');
+  P.activeApp=appId;
+  // lazy load
+  if(!P.loaded[appId]){
+    var fr=g('fr-'+appId);
+    if(fr){
+      fr.src=APPS[appId];
+      P.loaded[appId]=true;
+      fr.addEventListener('load',function onld(){
+        fr.removeEventListener('load',onld);
+        // inject bridge for index.html (for navTo)
+        if(appId==='index') injectBridge(fr);
+        // if page specified, send nav
+        if(page) sendNav(fr,page);
+      });
+    }
+  } else {
+    // already loaded — just send nav if needed
+    if(page && appId==='index'){
+      var fr=g('fr-'+appId);
+      if(fr) sendNav(fr,page);
+    }
+  }
+}
+
+/* ── INJECT BRIDGE into iframe ── */
+function injectBridge(frame){
+  try{
+    var doc=frame.contentDocument||frame.contentWindow.document;
+    if(doc&&(doc.head||doc.body)){
+      var s=doc.createElement('script');
+      s.textContent=[
+        '(function(){if(window._alfaBr)return;window._alfaBr=true;',
+        'window.addEventListener("message",function(e){if(!e.data)return;var d=e.data;',
+        'if(d.t==="NAV"&&typeof navTo==="function"){try{navTo(d.p);}catch(x){}}',
+        'if(d.t==="THEME"){try{document.documentElement.setAttribute("data-theme",d.v);localStorage.setItem("alfa_theme",d.v);}catch(x){}}',
+        '});',
+        'var _o=typeof navTo!=="undefined"?navTo:null;',
+        'if(_o){window.navTo=function(p){_o(p);try{parent.postMessage({t:"PC",p:p},"*");}catch(x){}}}',
+        '})();'
+      ].join('');
+      (doc.head||doc.body).appendChild(s);
+    }
+  }catch(e){/* cross-origin on file:// — user logs in manually */}
+}
+
+/* ── SEND NAV ── */
+function sendNav(frame,page){
+  try{frame.contentWindow.postMessage({t:'NAV',p:page},'*');}catch(e){}
+}
+
+/* ── BUILD SIDEBAR ── */
+function buildSidebar(role,rid){
+  var sb=g('sidebar'); sb.classList.remove('gone');
+  g('sb-pill').textContent=role.label;
+  g('sb-pill').style.color=role.color;
+  g('sb-pill').style.borderColor=role.color+'44';
+  g('sb-nm').textContent=role.label;
+  g('sb-sub').textContent=role.sub;
+  var active=ACT[rid]||(role.nav[0].items[0].id);
+  var h='';
+  role.nav.forEach(function(sec){
+    h+='<div class="ns">'+xh(sec.sec)+'</div>';
+    sec.items.forEach(function(item){
+      var isOn=item.id===active;
+      h+='<div class="ni'+(isOn?' on':'')+'" style="--nic:'+role.color+'"'+
+        ' data-role="'+rid+'" data-id="'+item.id+'" data-app="'+item.app+'"'+
+        (item.page?' data-page="'+item.page+'"':'')+
+        ' onclick="navClick(this)">'+
+        '<span class="ni-ic">'+item.icon+'</span>'+
+        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+xh(item.label)+'</span>'+
+        (item.badge?'<span class="ni-bd">'+item.badge+'</span>':'')+
+        '</div>';
+    });
+  });
+  g('sb-nav').innerHTML=h;
+}
+
+/* ── NAV CLICK ── */
+function navClick(el){
+  var rid=el.dataset.role,id=el.dataset.id,app=el.dataset.app,page=el.dataset.page;
+  ACT[rid]=id;
+  qa('#sb-nav .ni').forEach(function(n){n.classList.toggle('on',n.dataset.id===id)});
+  showApp(app,id,page||null);
+  toast('→ '+el.querySelector('span:nth-child(2)').textContent.trim());
+}
+
+/* ── LISTEN from index.html iframe ── */
+window.addEventListener('message',function(e){
+  if(!e.data) return; var d=e.data;
+  if(d.t==='PC'&&P.active){
+    // map page back to nav item
+    var role=ROLES[P.active];
+    if(!role) return;
+    for(var i=0;i<role.nav.length;i++){
+      for(var j=0;j<role.nav[i].items.length;j++){
+        var item=role.nav[i].items[j];
+        if(item.page===d.p&&item.app==='index'){
+          ACT[P.active]=item.id;
+          qa('#sb-nav .ni').forEach(function(n){n.classList.toggle('on',n.dataset.id===item.id)});
+          break;
+        }
+      }
+    }
+  }
+});
+
+/* ── HOME ── */
+function goHome(){
+  P.active=null; P.activeApp=null;
+  g('wlc').classList.remove('out');
+  g('btn-home').classList.add('on');
+  g('tb-rb').style.display='none';
+  qa('.fw').forEach(function(f){f.classList.remove('on')});
+  qa('.rb').forEach(function(b){b.classList.remove('on')});
+  g('rb-home').classList.add('on');
+  g('sidebar').classList.add('gone');
+}
+
+/* ── THEME ── */
+function toggleTheme(){
+  P.theme=P.theme==='dark'?'light':'dark';
+  localStorage.setItem('alfa_portal_theme',P.theme);
+  g('th-ic').textContent=P.theme==='dark'?'🌙':'☀️';
+  // forward to all loaded iframes
+  Object.keys(P.loaded).forEach(function(id){
+    var fr=g('fr-'+id);
+    if(fr&&fr.contentWindow){try{fr.contentWindow.postMessage({t:'THEME',v:P.theme},'*');}catch(e){}}
+  });
+}
+
+/* ── TOAST ── */
+var _tt=null;
+function toast(msg){
+  var t=g('tst'); g('tst-msg').textContent=msg; t.classList.add('on');
+  if(_tt) clearTimeout(_tt);
+  _tt=setTimeout(function(){t.classList.remove('on');},2200);
+}
+
+/* ── KEYBOARD ── */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){goHome();return;}
+  if(e.metaKey||e.ctrlKey){
+    if(e.key==='1'){e.preventDefault();selectRole('director');}
+    if(e.key==='2'){e.preventDefault();selectRole('am');}
+    if(e.key==='3'){e.preventDefault();selectRole('hr');}
+    if(e.key==='4'){e.preventDefault();selectRole('finance');}
+  }
+});
+
+/* ── HELPERS ── */
+function g(id){return document.getElementById(id)}
+function qa(s){return Array.from(document.querySelectorAll(s))}
+function xh(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+/* ── INIT ── */
+window.addEventListener('load',function(){
+  g('th-ic').textContent=P.theme==='dark'?'🌙':'☀️';
+  setTimeout(function(){
+    g('ldr').classList.add('out');
+    setTimeout(function(){g('ldr').style.display='none';},700);
+    goHome();
+  },1800);
+});
+</script>
+</body>
+</html>
